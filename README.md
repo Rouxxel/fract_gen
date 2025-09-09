@@ -1,13 +1,13 @@
 # fract_gen
 
 A simple **fractal generator** written in **C++**.  
-Generates Mandelbrot fractals and saves them as `.ppm` images and also common formats like `.png` using **stb_image_write**.
+Generates Mandelbrot fractals and saves them as `.ppm` images and also common formats like `.png` using **stb_image_write**, **json**.
 
 ---
 
 ## Features
 - Generate Mandelbrot fractals with configurable resolution and iterations.
-- Save images in **PPM** (default) and optionally **PNG/JPG/BMP/TGA**.
+- Save images in **PPM** (default) and convert them to **PNG/JPG/BMP/TGA**.
 - Allows custom file names, paths, and output formats.
 - Uses modern C++17 and **CMake** for easy building.
 - Supports Windows, Linux, and macOS.
@@ -17,19 +17,28 @@ Generates Mandelbrot fractals and saves them as `.ppm` images and also common fo
 ## Project Structure
 
 fract_gen/
+├─ assets/ 
+|   ├─ config/
+|   |   └─ default_config.json
+|   └─ palettes/
+|       └─ *.json
 ├─ include/ 
 |   ├─ color_rgb.hpp
 |   ├─ extension_conver.hpp
 |   ├─ fractal.hpp
 |   ├─ img_writer.hpp
+|   ├─ json.hpp
+|   ├─ palette.hpp
 |   └─ stb_image_write.hpp
 ├─ src/ 
 |   ├─ color.cpp
 |   ├─ extension_conver.cpp
 |   ├─ fractal.cpp
-|   └─ img_writer.cpp
+|   ├─ img_writer.cpp
+|   └─ palette.cpp
 ├─ .gitignore
 ├─ build.sh
+├─ build.bat
 ├─ CMakeLists.txt
 ├─ main.cpp
 └─ README.md
@@ -93,12 +102,14 @@ chmod +x build.sh
 
 When you run the program, it will ask for:
 
+- **Color palette json file** (default: `hardcoded`)
+
 - **Output file name** (default: `output`)
 - **Conversion format** (default: `.png`)
 - **Image width/height** (default: `800x600`)
 - **Maximum iterations** (default: `500`)
 
-Press **Enter** to accept default values.
+Press **Enter** to accept default values in any of the aforementioned.
 
 The program will generate the fractal and save the image(s) to the output folder.
 
