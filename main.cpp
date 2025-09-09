@@ -2,25 +2,48 @@
 #include "include/color_rgb.hpp"
 #include "include/img_writer.hpp"
 #include "include/extension_conver.hpp"
+#include "include/json.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
+using json = nlohmann::json;
 
 int main() {
-    //Default values
-    string file_name = "output";
-    string path = "../output/";
-    string extension = ".ppm";
-    string conver_ext = ".png";
-    int width = 800;
-    int height = 600;
-    int max_iter = 500;
+    // ----------------------
+    // Load JSON config
+    // ----------------------
+    string config_path = "../assets/config/default_config.json";
+    json config;
+
+    ifstream config_file(config_path);
+    if (config_file.is_open()) {
+        config_file >> config;
+        config_file.close();
+    } else {
+        cerr << "Warning: Could not open config file: " << config_path << endl;
+    }
+
+    // ----------------------
+    // Set defaults from JSON
+    // ----------------------
+    string file_name = config["mutable"].value("file_name", "output");
+    string conver_ext = config["mutable"].value("conver_extension", ".png");
+    int width = config["mutable"].value("width.px", 800);
+    int height = config["mutable"].value("height.px", 600);
+    int max_iter = config["mutable"].value("max_iter", 500);
+
+    string extension = config["unmutable"].value("default_extension", ".ppm");
+    string path = config["unmutable"].value("default_output_dir", "../output/");
 
     string input;
     
-    //Ask user
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // ----------------------
+    // Ask user (can override defaults)
+    // ----------------------
     cout << "Enter file name (default = " << file_name << "): ";
     getline(cin, input);
     if (!input.empty()) file_name = input;
@@ -41,17 +64,21 @@ int main() {
     getline(cin, input);
     if (!input.empty()) max_iter = stoi(input);
 
+    // ----------------------
     // Confirm settings
+    // ----------------------
     cout << "\nUsing settings:\n";
     cout << "File: " << path + file_name + extension << endl;
     cout << "Convert to: " << conver_ext << endl;
-    cout << "Resolution: " << width << "x" << height << endl;
+    cout << "Resolution: " << width << "x" << height << "px (width x height)"<< endl;
     cout << "Max iterations: " << max_iter << endl;
 
     cout << "Running script now..." << endl;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
-    //Start process
+    // ----------------------
+    // Start process
+    // ----------------------
     //Allocate pixel buffer
     vector<RGB> buffer(width * height);
 
@@ -67,11 +94,13 @@ int main() {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
-    //Save file
+    // ----------------------
+    // Save file
+    // ----------------------
     string full_paht= path+file_name+extension;
     save_ppm(buffer, width, height, "../output/"+file_name);
 
     //Convert file
     convert_ppm(buffer, width, height, path + file_name + conver_ext);
-    cout << "Image saved to: " << path << file_name << " as .ppm and " << conver_ext << endl;
+    cout << "Image '" << file_name << "' saved to '" << path << "' as .ppm and " << conver_ext << endl;
 }

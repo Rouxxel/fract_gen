@@ -1,0 +1,13 @@
+{
+    "mutable":{
+        "file_name":"output",
+        "conver_extension":".png",
+        "height.px":600,
+        "width.px":800,
+        "max_iter":500
+    },
+    "unmutable":{
+        "default_extension":".ppm",
+        "default_output_dir":"../output/"
+    }
+}
