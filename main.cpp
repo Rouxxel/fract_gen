@@ -48,6 +48,7 @@ int main() {
     cout << "Resolution: " << width << "x" << height << endl;
     cout << "Max iterations: " << max_iter << endl;
 
+    cout << "Running script now..." << endl;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     //Start process
@@ -72,5 +73,5 @@ int main() {
 
     //Convert file
     convert_ppm(buffer, width, height, path + file_name + conver_ext);
-    cout << "Image saved to: " << path << file_name << "as .ppm and " << conver_ext << endl;
+    cout << "Image saved to: " << path << file_name << " as .ppm and " << conver_ext << endl;
 }
