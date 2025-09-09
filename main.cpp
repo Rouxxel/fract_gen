@@ -3,6 +3,7 @@
 #include "include/img_writer.hpp"
 #include "include/extension_conver.hpp"
 #include "include/json.hpp"
+#include "include/palette.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -42,6 +43,29 @@ int main() {
     
     ////////////////////////////////////////////////////////////////////////////////////////////
     // ----------------------
+    // Load optional color palette
+    // ----------------------
+    vector<RGB> palette;
+    string palette_path = config["color_palettes"].value("palettes_path", "../assets/palettes/");
+    string palette_json;
+
+    cout << "Enter palette JSON file name in '../assets/palettes/' (press Enter for default): ";
+    getline(cin, palette_json);
+
+    bool use_palette = false;
+    string full_palette_path = palette_path + palette_json;
+    if (!palette_json.empty()) {
+        try {
+            palette = load_palette(full_palette_path);
+            use_palette = true;
+        } catch (const exception& e) {
+            cerr << "Failed to load palette, using default procedural colors. (" << e.what() << ")\n";
+            cerr << "Ensure the entered palette is saved in '../assets/palettes/' !!!";
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // ----------------------
     // Ask user (can override defaults)
     // ----------------------
     cout << "Enter file name (default = " << file_name << "): ";
@@ -72,6 +96,13 @@ int main() {
     cout << "Convert to: " << conver_ext << endl;
     cout << "Resolution: " << width << "x" << height << "px (width x height)"<< endl;
     cout << "Max iterations: " << max_iter << endl;
+    cout << endl;
+    if (use_palette){
+        cout << "Using palette from: " << palette_path << endl;
+    } else {
+        cout << "Using default procedural colors." << endl;
+    }
+    cout << endl;
 
     cout << "Running script now..." << endl;
 
@@ -89,7 +120,11 @@ int main() {
             double ci = -1.0 + 2.0 * y / (height - 1);  //y -> [-1,1]
 
             int iter = mandelbrot(cr, ci, max_iter);
-            buffer[y * width + x] = get_color(iter, max_iter);
+            if (use_palette) {
+                buffer[y * width + x] = get_color_from_palette(iter, max_iter, palette);
+            } else {
+                buffer[y * width + x] = get_color(iter, max_iter);
+            }
         }
     }
 

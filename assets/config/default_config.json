@@ -9,5 +9,8 @@
     "unmutable":{
         "default_extension":".ppm",
         "default_output_dir":"../output/"
+    },
+    "color_palettes":{
+        "palettes_path":"../assets/palettes/"
     }
 }
