@@ -53,7 +53,7 @@ int main() {
     getline(cin, palette_json);
 
     bool use_palette = false;
-    string full_palette_path = palette_path + palette_json;
+    string full_palette_path = palette_path + palette_json + "json";
     if (!palette_json.empty()) {
         try {
             palette = load_palette(full_palette_path);
