@@ -17,4 +17,5 @@ add_executable(fractal_generator
     src/fractal.cpp
     src/color.cpp
     src/img_writer.cpp
+    src/extension_conver.cpp
 )
