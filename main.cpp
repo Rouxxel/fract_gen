@@ -9,19 +9,51 @@
 using namespace std;
 
 int main() {
-    //File name
-    const string file_name = "output";
-    const string path = "../output/";
-    const string extension = ".ppm";
-    const string conver_ext = ".png";
+    //Default values
+    string file_name = "output";
+    string path = "../output/";
+    string extension = ".ppm";
+    string conver_ext = ".png";
+    int width = 800;
+    int height = 600;
+    int max_iter = 500;
 
-    //Dimensions
-    const int width = 800;
-    const int height = 600;
+    string input;
+    
+    //Ask user
+    cout << "Enter file name (default = " << file_name << "): ";
+    getline(cin, input);
+    if (!input.empty()) file_name = input;
 
-    //Iteration max
-    const int max_iter = 500;
+    cout << "Enter extension (default = " << extension << "): ";
+    getline(cin, input);
+    if (!input.empty()) extension = input;
 
+    cout << "Enter conversion extension (default = " << conver_ext << "): ";
+    getline(cin, input);
+    if (!input.empty()) conver_ext = input;
+
+    cout << "Enter width (default = " << width << "): ";
+    getline(cin, input);
+    if (!input.empty()) width = stoi(input);
+
+    cout << "Enter height (default = " << height << "): ";
+    getline(cin, input);
+    if (!input.empty()) height = stoi(input);
+
+    cout << "Enter max iterations (default = " << max_iter << "): ";
+    getline(cin, input);
+    if (!input.empty()) max_iter = stoi(input);
+
+    // Confirm settings
+    cout << "\nUsing settings:\n";
+    cout << "File: " << path + file_name + extension << endl;
+    cout << "Convert to: " << conver_ext << endl;
+    cout << "Resolution: " << width << "x" << height << endl;
+    cout << "Max iterations: " << max_iter << endl;
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
     //Start process
     //Allocate pixel buffer
     vector<RGB> buffer(width * height);
@@ -37,6 +69,7 @@ int main() {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
     //Save file
     string full_paht= path+file_name+extension;
     save_ppm(buffer, width, height, "../output/"+file_name);
