@@ -25,10 +25,6 @@ int main() {
     getline(cin, input);
     if (!input.empty()) file_name = input;
 
-    cout << "Enter extension (default = " << extension << "): ";
-    getline(cin, input);
-    if (!input.empty()) extension = input;
-
     cout << "Enter conversion extension (default = " << conver_ext << "): ";
     getline(cin, input);
     if (!input.empty()) conver_ext = input;
