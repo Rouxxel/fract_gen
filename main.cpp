@@ -1,18 +1,39 @@
 #include "include/fractal.hpp"
-#include <iostream>
+#include "include/color_rgb.hpp"
+#include "include/img_writer.hpp"
+#include <vector>
+#include <string>
+
+using namespace std;
 
 int main() {
-    int max_iter = 1000;
+    //File name
+    const string file_name = "output";
+    const string path = "../output/";
+    const string extension= ".ppm";
 
-    //Test
-    double test_points[3][2] = {
-        {0.0, 0.0},    //center
-        {-2.0, 1.0},   //top-left
-        {0.3, 0.5}     //somewhere in the set
-    };
+    //Dimensions
+    const int width = 800;
+    const int height = 600;
 
-    for (auto &p : test_points) {
-        int iter = mandelbrot(p[0], p[1], max_iter);
-        std::cout << "Point (" << p[0] << ", " << p[1] << ") -> Iterations: " << iter << "\n";
+    //Iteration max
+    const int max_iter = 500;
+
+    //Allocate pixel buffer
+    vector<RGB> buffer(width * height);
+
+    //Map each pixel to c_plane
+    for (int y = 0; y < height; y=y+1) {
+        for (int x = 0; x < width; x++) {
+            double cr = -2.0 + 3.0 * x / (width - 1);   //x -> [-2,1]
+            double ci = -1.0 + 2.0 * y / (height - 1);  //y -> [-1,1]
+
+            int iter = mandelbrot(cr, ci, max_iter);
+            buffer[y * width + x] = get_color(iter, max_iter);
+        }
     }
+
+    //Save file
+    string full_paht= path+file_name+extension;
+    save_ppm(buffer, width, height, "../output/"+file_name);
 }
