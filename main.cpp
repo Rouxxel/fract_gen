@@ -48,12 +48,13 @@ int main() {
     vector<RGB> palette;
     string palette_path = config["color_palettes"].value("palettes_path", "../assets/palettes/");
     string palette_json;
+    string palette_extension = config["color_palettes"].value("palette_extension", ".json");
 
     cout << "Enter palette JSON file name in '../assets/palettes/' (press Enter for default): ";
     getline(cin, palette_json);
 
     bool use_palette = false;
-    string full_palette_path = palette_path + palette_json + "json";
+    string full_palette_path = palette_path + palette_json + palette_extension;
     if (!palette_json.empty()) {
         try {
             palette = load_palette(full_palette_path);
