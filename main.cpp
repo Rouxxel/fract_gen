@@ -4,20 +4,42 @@
 #include "include/extension_conver.hpp"
 #include "include/json.hpp"
 #include "include/palette.hpp"
+#include "include/custom_logger.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <omp.h>
 #include <chrono>
+#include <iomanip>
+#include <sstream>
 
 using namespace std;
 using json = nlohmann::json;
 
 int main() {
     // ----------------------
-    // Load JSON config
+    // Load JSON config and set logger
     // ----------------------
+    //Get current date/time as YYYY-MM-DD_HH-MM-SS
+    auto date_now = chrono::system_clock::now();
+    time_t t_now = chrono::system_clock::to_time_t(date_now);
+    tm tm_now;
+    #ifdef _WIN32
+        localtime_s(&tm_now, &t_now);   //Windows-safe
+    #else
+        localtime_r(&t_now, &tm_now);   //Linux/Unix-safe
+    #endif
+
+    ostringstream oss;
+    oss << "fractal_" << put_time(&tm_now, "%Y-%m-%d_%H-%M-%S") << ".log";
+
+    //Create logger
+    Logger log("../output/" + oss.str());
+    log << "Logging started..." << endl;
+    log << "Logs being written to ../output/" << endl;
+
+    //Configuration
     string config_path = "../assets/config/default_config.json";
     json config;
 
@@ -26,7 +48,7 @@ int main() {
         config_file >> config;
         config_file.close();
     } else {
-        cerr << "Warning: Could not open config file: " << config_path << endl;
+        log << "Warning: Could not open config file: " << config_path << endl;
     }
 
     // ----------------------
@@ -55,7 +77,7 @@ int main() {
     string palette_json;
     string palette_extension = config["color_palettes"].value("palette_extension", ".json");
 
-    cout << "Enter palette JSON file name in '../assets/palettes/' (press Enter for default): ";
+    log << "Enter palette JSON file name in '../assets/palettes/' (press Enter for default): ";
     getline(cin, palette_json);
 
     bool use_palette = false;
@@ -65,8 +87,8 @@ int main() {
             palette = load_palette(full_palette_path);
             use_palette = true;
         } catch (const exception& e) {
-            cerr << "Failed to load palette, using default procedural colors. (" << e.what() << ")\n";
-            cerr << "Ensure the entered palette is saved in '../assets/palettes/' !!!";
+            log << "Failed to load palette, using default procedural colors. (" << e.what() << ")\n";
+            log << "Ensure the entered palette is saved in '../assets/palettes/' !!!";
         }
     }
 
@@ -74,43 +96,43 @@ int main() {
     // ----------------------
     // Ask user (can override defaults)
     // ----------------------
-    cout << "Enter file name (default = " << file_name << "): ";
+    log << "Enter file name (default = " << file_name << "): ";
     getline(cin, input);
     if (!input.empty()) file_name = input;
 
-    cout << "Enter conversion extension (default = " << conver_ext << "): ";
+    log << "Enter conversion extension (default = " << conver_ext << "): ";
     getline(cin, input);
     if (!input.empty()) conver_ext = input;
 
-    cout << "Enter width (default = " << width << "): ";
+    log << "Enter width (default = " << width << "): ";
     getline(cin, input);
     if (!input.empty()) width = stoi(input);
 
-    cout << "Enter height (default = " << height << "): ";
+    log << "Enter height (default = " << height << "): ";
     getline(cin, input);
     if (!input.empty()) height = stoi(input);
 
-    cout << "Enter max iterations (default = " << max_iter << "): ";
+    log << "Enter max iterations (default = " << max_iter << "): ";
     getline(cin, input);
     if (!input.empty()) max_iter = stoi(input);
 
     // ----------------------
     // Confirm settings
     // ----------------------
-    cout << "\nUsing settings:\n";
-    cout << "File: " << path + file_name + extension << endl;
-    cout << "Convert to: " << conver_ext << endl;
-    cout << "Resolution: " << width << "x" << height << "px (width x height)"<< endl;
-    cout << "Max iterations: " << max_iter << endl;
-    cout << endl;
+    log << "\nUsing settings:\n";
+    log << "File: " << path + file_name + extension << endl;
+    log << "Convert to: " << conver_ext << endl;
+    log << "Resolution: " << width << "x" << height << "px (width x height)"<< endl;
+    log << "Max iterations: " << max_iter << endl;
+    log << endl;
     if (use_palette){
-        cout << "Using palette from: " << palette_path << endl;
+        log << "Using palette from: " << palette_path << endl;
     } else {
-        cout << "Using default procedural colors." << endl;
-    }
-    cout << endl;
+        log << "Using default procedural colors." << endl;
+    } 
+    log << endl;
 
-    cout << "Running script now..." << endl;
+    log << "Running script now..." << endl;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // ----------------------
@@ -143,5 +165,5 @@ int main() {
 
     //Convert file
     convert_ppm(buffer, width, height, path + file_name + conver_ext);
-    cout << "Image '" << file_name << "' saved to '" << path << "' as .ppm and " << conver_ext << endl;
+    log << "Image '" << file_name << "' saved to '" << path << "' as .ppm and " << conver_ext << endl;
 }
