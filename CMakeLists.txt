@@ -20,3 +20,10 @@ add_executable(fractal_generator
     src/extension_conver.cpp
     src/palette.cpp
 )
+
+#--- Enable OpenMP ---
+find_package(OpenMP REQUIRED)
+
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(fractal_generator PRIVATE OpenMP::OpenMP_CXX)
+endif()

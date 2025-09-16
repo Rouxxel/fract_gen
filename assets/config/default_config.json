@@ -13,5 +13,9 @@
     "color_palettes":{
         "palettes_path":"../assets/palettes/",
         "palette_extension":".json"
+    },
+    "parallel_section":{
+        "parallelize":true,
+        "num_of_threads":8
     }
 }

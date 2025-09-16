@@ -8,6 +8,8 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <omp.h>
+#include <chrono>
 
 using namespace std;
 using json = nlohmann::json;
@@ -35,6 +37,9 @@ int main() {
     int width = config["mutable"].value("width.px", 800);
     int height = config["mutable"].value("height.px", 600);
     int max_iter = config["mutable"].value("max_iter", 500);
+
+    int num_threads = config["parallel_section"]["num_of_threads"];
+    bool parallelize = config["parallel_section"]["parallelize"];
 
     string extension = config["unmutable"].value("default_extension", ".ppm");
     string path = config["unmutable"].value("default_output_dir", "../output/");
@@ -115,17 +120,17 @@ int main() {
     vector<RGB> buffer(width * height);
 
     //Map each pixel to c_plane
+    if (parallelize) omp_set_num_threads(num_threads);
+    #pragma omp parallel for collapse(2) schedule(dynamic) if(parallelize)
     for (int y = 0; y < height; y=y+1) {
         for (int x = 0; x < width; x++) {
             double cr = -2.0 + 3.0 * x / (width - 1);   //x -> [-2,1]
             double ci = -1.0 + 2.0 * y / (height - 1);  //y -> [-1,1]
 
             int iter = mandelbrot(cr, ci, max_iter);
-            if (use_palette) {
-                buffer[y * width + x] = get_color_from_palette(iter, max_iter, palette);
-            } else {
-                buffer[y * width + x] = get_color(iter, max_iter);
-            }
+            buffer[y * width + x] = use_palette
+                ? get_color_from_palette(iter, max_iter, palette)
+                : get_color(iter, max_iter);
         }
     }
 
