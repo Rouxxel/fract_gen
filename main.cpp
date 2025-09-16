@@ -19,7 +19,7 @@ using json = nlohmann::json;
 
 int main() {
     // ----------------------
-    // Load JSON config and set logger
+    // Create logger with timestamped file
     // ----------------------
     //Get current date/time as YYYY-MM-DD_HH-MM-SS
     auto date_now = chrono::system_clock::now();
@@ -35,9 +35,9 @@ int main() {
     oss << "fractal_" << put_time(&tm_now, "%Y-%m-%d_%H-%M-%S") << ".log";
 
     //Create logger
-    Logger log("../output/" + oss.str());
-    log << "Logging started..." << endl;
-    log << "Logs being written to ../output/" << endl;
+    Logger log("../logs/" + oss.str());
+    log.log_line("Logging started...");
+    log.log_line("Logs being written to ../logs/");
 
     //Configuration
     string config_path = "../assets/config/default_config.json";
@@ -48,7 +48,7 @@ int main() {
         config_file >> config;
         config_file.close();
     } else {
-        log << "Warning: Could not open config file: " << config_path << endl;
+        log.log_line("Warning: Could not open config file: " + config_path);
     }
 
     // ----------------------
@@ -77,7 +77,7 @@ int main() {
     string palette_json;
     string palette_extension = config["color_palettes"].value("palette_extension", ".json");
 
-    log << "Enter palette JSON file name in '../assets/palettes/' (press Enter for default): ";
+    log.log_line("Enter palette JSON file name in '../assets/palettes/' (press Enter for default): ");
     getline(cin, palette_json);
 
     bool use_palette = false;
@@ -87,8 +87,8 @@ int main() {
             palette = load_palette(full_palette_path);
             use_palette = true;
         } catch (const exception& e) {
-            log << "Failed to load palette, using default procedural colors. (" << e.what() << ")\n";
-            log << "Ensure the entered palette is saved in '../assets/palettes/' !!!";
+            log.log_line("Failed to load palette, using default procedural colors. (" + string(e.what()) + ")");
+            log.log_line("Ensure the entered palette is saved in '../assets/palettes/' !!!");
         }
     }
 
@@ -96,43 +96,42 @@ int main() {
     // ----------------------
     // Ask user (can override defaults)
     // ----------------------
-    log << "Enter file name (default = " << file_name << "): ";
+    log.log_line("Enter file name (default = " + file_name + "): ");
     getline(cin, input);
     if (!input.empty()) file_name = input;
 
-    log << "Enter conversion extension (default = " << conver_ext << "): ";
+    log.log_line("Enter conversion extension (default = " + conver_ext + "): ");
     getline(cin, input);
     if (!input.empty()) conver_ext = input;
 
-    log << "Enter width (default = " << width << "): ";
+    log.log_line("Enter width (default = " + to_string(width) + "): ");
     getline(cin, input);
     if (!input.empty()) width = stoi(input);
 
-    log << "Enter height (default = " << height << "): ";
+    log.log_line("Enter height (default = " + to_string(height) + "): ");
     getline(cin, input);
     if (!input.empty()) height = stoi(input);
 
-    log << "Enter max iterations (default = " << max_iter << "): ";
+    log.log_line("Enter max iterations (default = " + to_string(max_iter) + "): ");
     getline(cin, input);
     if (!input.empty()) max_iter = stoi(input);
 
     // ----------------------
     // Confirm settings
     // ----------------------
-    log << "\nUsing settings:\n";
-    log << "File: " << path + file_name + extension << endl;
-    log << "Convert to: " << conver_ext << endl;
-    log << "Resolution: " << width << "x" << height << "px (width x height)"<< endl;
-    log << "Max iterations: " << max_iter << endl;
-    log << endl;
-    if (use_palette){
-        log << "Using palette from: " << palette_path << endl;
-    } else {
-        log << "Using default procedural colors." << endl;
-    } 
-    log << endl;
+    log.log_line("\nUsing settings:");
+    log.log_line("File: " + path + file_name + extension);
+    log.log_line("Convert to: " + conver_ext);
+    log.log_line("Resolution: " + to_string(width) + "x" + to_string(height) + "px (width x height)");
+    log.log_line("Max iterations: " + to_string(max_iter));
 
-    log << "Running script now..." << endl;
+    if (use_palette) {
+        log.log_line("Using palette from: " + palette_path);
+    } else {
+        log.log_line("Using default procedural colors.");
+    }
+
+    log.log_line("Running script now...");
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // ----------------------
@@ -160,10 +159,12 @@ int main() {
     // ----------------------
     // Save file
     // ----------------------
-    string full_paht= path+file_name+extension;
-    save_ppm(buffer, width, height, "../output/"+file_name);
+    string full_path = path + file_name + extension;
+    save_ppm(buffer, width, height, "../output/" + file_name);
 
     //Convert file
     convert_ppm(buffer, width, height, path + file_name + conver_ext);
-    log << "Image '" << file_name << "' saved to '" << path << "' as .ppm and " << conver_ext << endl;
+    log.log_line("Image '" + file_name + "' saved to '" + path + "' as .ppm and " + conver_ext);
+
+    return 0;
 }

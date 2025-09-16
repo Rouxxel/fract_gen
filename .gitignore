@@ -5,6 +5,7 @@
 build/
 .vscode/
 output/
+logs/
 
 # Compiled Object files
 *.slo

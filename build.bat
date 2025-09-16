@@ -5,6 +5,7 @@ cd /d %~dp0
 REM Create build and output directories if unexistent
 if not exist build mkdir build
 if not exist output mkdir output
+if not exist logs mkdir logs
 
 REM Go to build directory
 cd build

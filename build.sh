@@ -7,6 +7,7 @@ cd "$(dirname "$0")"
 #Create build and output dirs if unexistent
 mkdir -p build
 mkdir -p output
+mkdir -p logs
 
 #Go into build folder
 cd build
