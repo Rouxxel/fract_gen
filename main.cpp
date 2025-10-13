@@ -13,6 +13,8 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 using json = nlohmann::json;
@@ -66,6 +68,11 @@ int main() {
     string extension = config["unmutable"].value("default_extension", ".ppm");
     string path = config["unmutable"].value("default_output_dir", "../output/");
 
+    double center_x = config["view_customization"]["center_x"];
+    double center_y = config["view_customization"]["center_y"];
+    double zoom = config["view_customization"]["zoom"];
+    bool randomize_view = config["view_customization"]["random_view"];
+
     string input;
     
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,13 +124,44 @@ int main() {
     if (!input.empty()) max_iter = stoi(input);
 
     // ----------------------
+    // Fractal view customization
+    // ----------------------
+    log.log_line("Do you want a random view? (y/n, default = n): ");
+    getline(cin, input);
+    if (!input.empty() && (input == "y" || input == "Y")) randomize_view = true;
+
+    if (randomize_view) {
+        srand(time(nullptr));
+        center_x = -2.0 + 3.0 * rand() / double(RAND_MAX);  // [-2, 1]
+        center_y = -1.5 + 3.0 * rand() / double(RAND_MAX);  // [-1.5, 1.5]
+        zoom = 0.5 + 4.0 * rand() / double(RAND_MAX);       // random zoom
+        log.log_line("Random view selected:");
+    } else {
+        log.log_line("Enter center X (default = -0.5): ");
+        getline(cin, input);
+        if (!input.empty()) center_x = stod(input);
+
+        log.log_line("Enter center Y (default = 0.0): ");
+        getline(cin, input);
+        if (!input.empty()) center_y = stod(input);
+
+        log.log_line("Enter zoom (default = 1.0, higher = zoom in): ");
+        getline(cin, input);
+        if (!input.empty()) zoom = stod(input);
+    }
+
+    // ----------------------
     // Confirm settings
     // ----------------------
     log.log_line("\nUsing settings:");
     log.log_line("File: " + path + file_name + extension);
     log.log_line("Convert to: " + conver_ext);
-    log.log_line("Resolution: " + to_string(width) + "x" + to_string(height) + "px (width x height)");
+    log.log_line("Resolution: " + to_string(width) + "x" + to_string(height) + "px");
     log.log_line("Max iterations: " + to_string(max_iter));
+    log.log_line("Center: (" + to_string(center_x) + ", " + to_string(center_y) + ")");
+    log.log_line("Zoom: " + to_string(zoom));
+
+    log.log_line(use_palette ? "Using custom palette." : "Using procedural colors.");
 
     if (use_palette) {
         log.log_line("Using palette from: " + palette_path);
@@ -143,10 +181,11 @@ int main() {
     //Map each pixel to c_plane
     if (parallelize) omp_set_num_threads(num_threads);
     #pragma omp parallel for collapse(2) schedule(dynamic) if(parallelize)
-    for (int y = 0; y < height; y=y+1) {
+    for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            double cr = -2.0 + 3.0 * x / (width - 1);   //x -> [-2,1]
-            double ci = -1.0 + 2.0 * y / (height - 1);  //y -> [-1,1]
+            // Dynamic mapping: depends on center and zoom
+            double cr = center_x + (x - width / 2.0) * (3.0 / width) / zoom;
+            double ci = center_y + (y - height / 2.0) * (2.0 / height) / zoom;
 
             int iter = mandelbrot(cr, ci, max_iter);
             buffer[y * width + x] = use_palette

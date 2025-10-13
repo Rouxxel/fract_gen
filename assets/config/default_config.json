@@ -17,5 +17,11 @@
     "parallel_section":{
         "parallelize":true,
         "num_of_threads":8
+    },
+    "view_customization":{
+        "random_view":false,
+        "zoom":1.0,
+        "center_x":-0.5,
+        "center_y":0
     }
 }
