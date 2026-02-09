@@ -16,6 +16,7 @@ Generates Mandelbrot fractals and saves them as `.ppm` images and also common fo
 
 ## Project Structure
 
+```
 fract_gen/
 ├─ assets/ 
 |   ├─ config/
@@ -42,6 +43,7 @@ fract_gen/
 ├─ CMakeLists.txt
 ├─ main.cpp
 └─ README.md
+```
 
 ---
 
